@@ -6,14 +6,39 @@
     <title></title>
     <meta charset="utf-8" />
 
-    <h1 id="myh1">READY</h1>
-    <input type="button" value="Click" onclick="start()">
+    <div id="myh1">READY</div>
+
+    <div id="button_group">
+        <input type="button" value="Start(s)" onclick="start()">
+        <input type="button" value="Setting(c)" onclick="setting()">
+        <input type="button" value="whistle(w)" onclick="whistle()">
+        <input type="button" value="Reset(r)" onclick="reset()">
+    </div>
+
+    <style>
+        @font-face {
+            font-family: 'MyFont';
+            src: url(./font/DSEG14Modern-Regular.ttf);
+        }
+
+        body {
+            font-family: MyFont;
+            background-color: #222;
+            color: #fff;
+        }
+
+        #myh1 {
+            text-align: center;
+        }
+    </style>
 
     <script type="text/javascript">
         var audioElem;
         var startTime = 0;//ms
         var systemState = 0;
         var sound_flag = false;
+        var game_time = 15;
+        var setting_time = 5;
 
         function start() {
             // Dateオブジェクトを作成
@@ -22,6 +47,25 @@
             startTime = date.getTime();
             playSound("startcall");
         }
+
+        function setting() {
+            playSound("whistle");
+            var date = new Date();
+            startTime = date.getTime();
+            systemState = 10;
+        }
+
+        function whistle() {
+            playSound("whistle");
+        }
+
+        function reset() {
+            myh1.style.color = "white";
+            systemState = 0;
+            sound_flag = false;
+            StopSound();
+        }
+
 
         function playSound(soundName) {
             audioElem = new Audio();
@@ -37,11 +81,19 @@
             // Dateオブジェクトを作成
             var date = new Date();
 
+
             // UNIXタイムスタンプを取得する (ミリ秒単位)
             var nowTime = date.getTime();
             var myh1 = document.getElementById("myh1");
+            var fontsize_1 = 0.2 * window.innerWidth;
+            var fontsize_2 = 0.3 * window.innerWidth;
+            var div_pose_y = (window.innerHeight - myh1.clientHeight) / 2;
+            myh1.style.marginTop = div_pose_y + "px";
+
+            document.getElementById("button_group").style.marginTop = window.innerHeight - (div_pose_y + myh1.clientHeight) - 40 + "px";
 
             if (systemState === 0) {
+                myh1.style.fontSize = fontsize_1 + "px";
                 myh1.innerHTML = "READY";
             } else if (systemState === 1) {
                 // スタート前カウントダウン
@@ -49,6 +101,7 @@
                 var remaining_sec = Math.floor(6 - elapsed_sec);
 
                 if (remaining_sec !== 5) {
+                    myh1.style.fontSize = fontsize_2 + "px";
                     myh1.innerHTML = remaining_sec;
                 }
 
@@ -62,6 +115,7 @@
                 }
             } else if (systemState === 2) {
                 // 「START」描画
+                myh1.style.fontSize = fontsize_1 + "px";
                 sound_flag = false;
                 var elapsed_sec = Math.floor(nowTime / 1000 - startTime / 1000 - 6);
                 myh1.innerHTML = "START";
@@ -70,6 +124,8 @@
                     systemState++;
                 }
             } else if (systemState === 3) {
+                // カウント中
+                myh1.style.fontSize = fontsize_2 + "px";
                 var elapsed_sec = Math.floor(nowTime / 1000 - startTime / 1000 - 6);
 
                 // 描画文字列の生成
@@ -81,17 +137,31 @@
                     sec_str = "0" + sec_str;
                 }
 
-                // // 終了カウントダウン
-                // if (elapsed_sec >= game_time - 3) {
-                //     label1.ForeColor = Color.Yellow;
-                //     if (sound_flag == false) {
-                //         sound_flag = true;
-                //         PlaySound("count");
-                //     }
-                // }
+                // 終了カウントダウン
+                if (elapsed_sec >= game_time - 3) {
+                    myh1.style.color = "yellow";
+                    if (sound_flag === false) {
+                        sound_flag = true;
+                        playSound("count");
+                    }
+                }
+
+                // 試合時間終了後は赤
+                if (elapsed_sec >= game_time) {
+                    myh1.style.color = "red";
+                }
+
                 myh1.innerHTML = min_str + ":" + sec_str;
 
 
+            } else if (systemState == 10) {
+                // セッティングタイムカウント
+                var elapsed_sec = Math.floor(nowTime / 1000 - startTime / 1000);
+
+                if (elapsed_sec == setting_time) {
+                    playSound("whistle");
+                    systemState = 11;
+                }
             }
         }
 
@@ -103,6 +173,27 @@
         //現在時刻を表示する関数
         function showNowDate() {
             display();
+        }
+
+
+
+
+        document.onkeydown = keydown;
+
+        function keydown() {
+            if (event.keyCode == 83) {
+                start();
+            }
+            if (event.keyCode == 67) {
+                setting();
+            }
+            if (event.keyCode == 87) {
+                whistle();
+            }
+            if (event.keyCode == 82) {
+                reset();
+            }
+
         }
     </script>
 </head>
