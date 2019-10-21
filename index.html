@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <meta charset="utf-8" />
+
+    <h1 id="myh1">READY</h1>
+    <input type="button" value="Click" onclick="start()">
+
+    <script type="text/javascript">
+        var audioElem;
+        var startTime = 0;//ms
+        var systemState = 0;
+        var sound_flag = false;
+
+        function start() {
+            // Dateオブジェクトを作成
+            systemState = 1;
+            var date = new Date();
+            startTime = date.getTime();
+            playSound("startcall");
+        }
+
+        function playSound(soundName) {
+            audioElem = new Audio();
+            audioElem.src = soundName + ".wav";
+            audioElem.play();
+        }
+
+        function StopSound() {
+            audioElem.pause();
+        }
+
+        var display = function () {
+            // Dateオブジェクトを作成
+            var date = new Date();
+
+            // UNIXタイムスタンプを取得する (ミリ秒単位)
+            var nowTime = date.getTime();
+            var myh1 = document.getElementById("myh1");
+
+            if (systemState === 0) {
+                myh1.innerHTML = "READY";
+            } else if (systemState === 1) {
+                // スタート前カウントダウン
+                var elapsed_sec = (nowTime - startTime) / 1000;
+                var remaining_sec = Math.floor(6 - elapsed_sec);
+
+                if (remaining_sec !== 5) {
+                    myh1.innerHTML = remaining_sec;
+                }
+
+                if (remaining_sec == 3 && sound_flag == false) {
+                    sound_flag = true;
+                    playSound("count");
+                }
+
+                if (remaining_sec == 0) {
+                    systemState++;
+                }
+            } else if (systemState === 2) {
+                // 「START」描画
+                sound_flag = false;
+                var elapsed_sec = Math.floor(nowTime / 1000 - startTime / 1000 - 6);
+                myh1.innerHTML = "START";
+
+                if (elapsed_sec > 1) {
+                    systemState++;
+                }
+            } else if (systemState === 3) {
+                var elapsed_sec = Math.floor(nowTime / 1000 - startTime / 1000 - 6);
+
+                // 描画文字列の生成
+                var min_str = String(Math.floor(elapsed_sec / 60));
+                var sec_str = String(Math.floor(elapsed_sec % 60));
+
+                // ゼロ埋め
+                if (elapsed_sec % 60 < 10) {
+                    sec_str = "0" + sec_str;
+                }
+
+                // // 終了カウントダウン
+                // if (elapsed_sec >= game_time - 3) {
+                //     label1.ForeColor = Color.Yellow;
+                //     if (sound_flag == false) {
+                //         sound_flag = true;
+                //         PlaySound("count");
+                //     }
+                // }
+                myh1.innerHTML = min_str + ":" + sec_str;
+
+
+            }
+        }
+
+        window.onload = function () {
+            //1000ミリ秒（1秒）毎に関数「showNowDate()」を呼び出す
+            setInterval("showNowDate()", 30);
+        }
+
+        //現在時刻を表示する関数
+        function showNowDate() {
+            display();
+        }
+    </script>
+</head>
+
+
+</html>
