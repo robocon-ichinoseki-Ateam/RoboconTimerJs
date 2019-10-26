@@ -1,0 +1,14 @@
+@font-face {
+    font-family: 'MyFont';
+    src: url(./../font/DSEG14Modern-Regular.ttf);
+}
+
+body {
+    font-family: MyFont;
+    background-color: #222;
+    color: #fff;
+}
+
+#main-display {
+    text-align: center;
+}
