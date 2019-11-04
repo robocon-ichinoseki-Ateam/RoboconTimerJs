@@ -11,4 +11,5 @@ body {
 
 #main-display {
     text-align: center;
+    position: relative;
 }
