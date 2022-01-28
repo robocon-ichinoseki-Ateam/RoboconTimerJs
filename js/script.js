@@ -2,7 +2,7 @@ var audioElem;
 var startTime = 0;//ms
 var systemState = 0;
 var sound_flag = false;
-var game_time = 150;
+var game_time;
 var setting_time = 60;
 var display_elm;
 
@@ -17,74 +17,75 @@ var process = function () {
     display_elm = document.getElementById("main-display");
 
     var font_type = 0;  // 0: 小さめ， 1: 大きめ
-
-    if (systemState === 0) {
-        // イベント発生待ち
-        font_type = 0;
-        display_elm.innerHTML = "READY";
-    }
-
-    if (systemState === 1) {
-        // スタート前カウントダウン
-        var elapsed_sec = (nowTime - startTime) / 1000;
-        var remaining_sec = Math.floor(6 - elapsed_sec);
-        if (remaining_sec < 5) {
-            font_type = 1;
-            display_elm.innerHTML = remaining_sec;
+    switch (systemState) {
+        case 0: {
+            // イベント発生待ち
+            font_type = 0;
+            display_elm.innerHTML = "READY";
+            break;
         }
-        if (remaining_sec == 3 && sound_flag == false) {
-            sound_flag = true;
-            playSound("count");
-        }
-        if (remaining_sec == 0) {
-            systemState++;
-        }
-    }
-
-    if (systemState === 2) {
-        // 「START」描画
-        font_type = 0;
-
-        sound_flag = false;
-        var elapsed_sec = Math.floor(nowTime / 1000 - startTime / 1000 - 6);
-        display_elm.innerHTML = "START";
-        if (elapsed_sec > 1) {
-            systemState++;
-        }
-    }
-
-    if (systemState === 3) {
-        // カウント中
-        font_type = 1;
-        var elapsed_sec = Math.floor(nowTime / 1000 - startTime / 1000 - 6);
-        // 描画文字列の生成
-        var min_str = String(Math.floor(elapsed_sec / 60));
-        var sec_str = String(Math.floor(elapsed_sec % 60));
-        // ゼロ埋め
-        if (elapsed_sec % 60 < 10) {
-            sec_str = "0" + sec_str;
-        }
-        // 終了カウントダウン
-        if (elapsed_sec >= game_time - 3) {
-            display_elm.style.color = "yellow";
-            if (sound_flag === false) {
+        case 1: {
+            // スタート前カウントダウン
+            var elapsed_sec = (nowTime - startTime) / 1000;
+            var remaining_sec = Math.floor(6 - elapsed_sec);
+            if (remaining_sec < 5) {
+                font_type = 1;
+                display_elm.innerHTML = remaining_sec;
+            }
+            if (remaining_sec == 3 && sound_flag == false) {
                 sound_flag = true;
                 playSound("count");
             }
+            if (remaining_sec == 0) {
+                systemState++;
+            }
+            break;
         }
-        // 試合時間終了後は赤
-        if (elapsed_sec >= game_time) {
-            display_elm.style.color = "red";
-        }
-        display_elm.innerHTML = min_str + ":" + sec_str;
-    }
+        case 2: {
+            // 「START」描画
+            font_type = 0;
 
-    if (systemState === 10) {
-        // セッティングタイムカウント
-        var elapsed_sec = Math.floor(nowTime / 1000 - startTime / 1000);
-        if (elapsed_sec == setting_time) {
-            playSound("whistle");
-            systemState = 11;
+            sound_flag = false;
+            var elapsed_sec = Math.floor(nowTime / 1000 - startTime / 1000 - 6);
+            display_elm.innerHTML = "START";
+            if (elapsed_sec > 1) {
+                systemState++;
+            }
+            break;
+        }
+        case 3: {
+            // カウント中
+            font_type = 1;
+            var elapsed_sec = Math.floor(nowTime / 1000 - startTime / 1000 - 6);
+            // 描画文字列の生成
+            var min_str = String(Math.floor(elapsed_sec / 60));
+            var sec_str = String(Math.floor(elapsed_sec % 60));
+            // ゼロ埋め
+            if (elapsed_sec % 60 < 10) {
+                sec_str = "0" + sec_str;
+            }
+            // 終了カウントダウン
+            if (elapsed_sec >= game_time - 3) {
+                display_elm.style.color = "yellow";
+                if (sound_flag === false) {
+                    sound_flag = true;
+                    playSound("count");
+                }
+            }
+            // 試合時間終了後は赤
+            if (elapsed_sec >= game_time) {
+                display_elm.style.color = "red";
+            }
+            display_elm.innerHTML = min_str + ":" + sec_str;
+            break;
+        }
+        case 10: {
+            // セッティングタイムカウント
+            var elapsed_sec = Math.floor(nowTime / 1000 - startTime / 1000);
+            if (elapsed_sec == setting_time) {
+                playSound("whistle");
+                systemState = 11;
+            }
         }
     }
 
@@ -102,22 +103,27 @@ var process = function () {
 
 // キー入力のイベント関係
 document.onkeydown = keydown;
-function keydown() {
-    if (event.keyCode == 83) {
-        start();
-    }
-    if (event.keyCode == 67) {
-        setting();
-    }
-    if (event.keyCode == 87) {
-        whistle();
-    }
-    if (event.keyCode == 82) {
-        reset();
+function keydown(event) {
+    switch (event.key) {
+        case "s":
+            start();
+            break;
+        case "c":
+            setting();
+            break;
+        case "w":
+            whistle();
+            break;
+        case "r":
+            reset();
     }
 }
 
 function start() {
+    game_time = document.getElementById("game_time").value;
+    if (game_time === undefined) {
+        game_time = 150;
+    }
     if (getUrlQueries().gameTime !== undefined) {
         game_time = getUrlQueries().gameTime;
     }
