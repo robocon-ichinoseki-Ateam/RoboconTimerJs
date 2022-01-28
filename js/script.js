@@ -121,7 +121,7 @@ function keydown(event) {
 
 function start() {
     game_time = document.getElementById("game_time").value;
-    if (game_time === undefined) {
+    if (game_time == "") {
         game_time = 150;
     }
     if (getUrlQueries().gameTime !== undefined) {
@@ -156,6 +156,7 @@ function reset() {
 function playSound(soundName) {
     audioElem = new Audio();
     audioElem.src = "./sound/" + soundName + ".wav";
+    //audioElem.volume = document.getElementById("volume").value;
     audioElem.play();
 }
 function StopSound() {

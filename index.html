@@ -14,13 +14,19 @@
         <p>READY
         <p>
     </div>
+
     <div id="button-group">
         <input type="button" value="Start(s)" onclick="start()">
         <input type="button" value="Setting(c)" onclick="setting()">
         <input type="button" value="whistle(w)" onclick="whistle()">
         <input type="button" value="Reset(r)" onclick="reset()">
-        <input type="number" id="game_time" value=120>
+    </div>
+    <div id="control">
+        <input type="number" id="game_time" placeholder="競技時間を入力(デフォルト:150s)" min="10">
+
+        <!--<input type="range" id="volume" min="0" max="1" step="0.05">-->
     </div>
 </body>
+
 
 </html>

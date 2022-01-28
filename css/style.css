@@ -7,9 +7,18 @@ body {
     font-family: MyFont;
     background-color: #222;
     color: #fff;
+    overflow: hidden;
 }
 
 #main-display {
     text-align: center;
     position: relative;
+}
+
+div#button-group{
+    display: inline-flex;
+}
+
+div#control{
+    display: inline-flex;
 }
